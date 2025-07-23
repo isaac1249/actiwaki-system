@@ -1,0 +1,138 @@
+/* AddPage.css */
+
+/* 整體頁面 */
+body {
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+/* 標題 */
+h2 {
+  margin-bottom: 10px;
+}
+
+/* 表單列：新增任務 */
+.task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.task-form label {
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.task-form input,
+.task-form select,
+.task-form button {
+  padding: 5px;
+  font-size: 14px;
+  min-width: 80px;
+  border: 1px solid black;
+}
+
+/* 任務列表容器 */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 單一任務容器 */
+.task-item {
+  border: 4px solid black;
+  padding: 10px;
+  background-color: white;
+}
+
+/* 編輯表單區塊 */
+.edit-form {
+  display: grid;
+  grid-template-columns: repeat(4, min-content) 1fr;
+  grid-gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+/* 編輯用輸入框 */
+.edit-form input,
+.edit-form select,
+.edit-form textarea {
+  border: 2px solid black;
+  padding: 4px;
+  font-size: 14px;
+}
+
+/* 備註欄放整列 */
+.edit-form textarea {
+  grid-column: span 5;
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* 編輯按鈕區 */
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.button-group button {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 2px solid black;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+/* AddPage.css */
+
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input, select, textarea {
+  border: 1px solid #333;
+  padding: 6px;
+  border-radius: 4px;
+  min-width: 120px;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+button {
+  padding: 6px 12px;
+  border: 1px solid #333;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.task-box {
+  border: 2px solid black;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.task-content p {
+  margin: 4px 0;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

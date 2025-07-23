@@ -1,0 +1,43 @@
+.nav {
+  background-color: #87ceeb; /* 天空藍 */
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #1e90ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  margin-left: 20px;
+}
+
+.link {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #1e90ff;
+  border: 2px solid #1e90ff;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.link:hover {
+  background-color: #1e90ff;
+  color: #ffffff;
+}
