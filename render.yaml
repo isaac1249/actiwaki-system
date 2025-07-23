@@ -4,8 +4,8 @@ services:
     repo: https://github.com/isaac1249/actiwaki-system
     branch: main
     rootDir: frontend
-    buildCommand: npm run build
-    startCommand: npx serve -s dist
+    buildCommand: npx vite build
+    startCommand: npx vite preview --port 10000
     runtime: node
     envVars:
       - key: NODE_VERSION
