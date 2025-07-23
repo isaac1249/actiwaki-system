@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("./db");
+const db = require("./todo.db");
 
 // 取得所有任務
 router.get("/", (req, res) => {
