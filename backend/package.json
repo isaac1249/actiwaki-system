@@ -4,7 +4,8 @@
   "description": "Actiwaki backend server",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "postinstall": "npm rebuild sqlite3 --build-from-source"
   },
 
   "dependencies": {
