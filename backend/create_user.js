@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 
 const db = new sqlite3.Database('./database.db');
 
-
 bcrypt.hash(password, 10, (err, hash) => {
   if (err) {
     console.error("密碼加密失敗:", err);

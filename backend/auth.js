@@ -1,24 +1,30 @@
-// auth.js
+// routes/auth.js
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const db = require('./db');
-
+const sqlite3 = require('sqlite3').verbose();
 const router = express.Router();
-const SECRET_KEY = 'your-secret-key';
 
-// 登入 API
-router.post('/login', async (req, res) => {
+// 使用 database.db 查詢帳號密碼
+const db = new sqlite3.Database('./database.db');
+
+// 登入 API：POST /api/auth/login
+router.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
 
-  if (!user) return res.status(401).json({ message: '帳號不存在' });
+  if (!username || !password) {
+    return res.status(400).json({ error: '請提供帳號與密碼' });
+  }
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(401).json({ message: '密碼錯誤' });
+  db.get("SELECT * FROM users WHERE username = ? AND password = ?", [username, password], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: '資料庫錯誤' });
+    }
 
-  const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
-  res.json({ token });
+    if (!row) {
+      return res.status(401).json({ error: '帳號或密碼錯誤' });
+    }
+
+    res.json({ message: '登入成功', user: row });
+  });
 });
 
 module.exports = router;
