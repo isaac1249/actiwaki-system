@@ -5,10 +5,5 @@ node_modules/
 frontend/node_modules/
 backend/node_modules/
 
-# 忽略 Vite 開發快取
-.vite/
-frontend/.vite/
-frontend/dist/
-
 # 忽略環境變數
 .env
