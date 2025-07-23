@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const db = require("./todo.db");
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./todo.db');
 
 // 取得所有任務
 router.get("/", (req, res) => {
