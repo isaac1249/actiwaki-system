@@ -4,8 +4,6 @@ const bcrypt = require('bcryptjs');
 
 const db = new sqlite3.Database('./database.db');
 
-const username = 'isaac1249';
-const password = 'aA80123145';
 
 bcrypt.hash(password, 10, (err, hash) => {
   if (err) {
