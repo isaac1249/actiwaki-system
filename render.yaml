@@ -1,5 +1,5 @@
 services:
-  - type: static
+  - type: static_site
     name: actiwaki-frontend
     repo: https://github.com/isaac1249/actiwaki-system
     branch: main
