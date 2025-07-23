@@ -1,20 +1,30 @@
-// app.js
-const express = require('express');
-const cors = require('cors');
-const routes = require('./routes');
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const routes = require("./routes");
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://actiwaki-system.onrender.com'],
-  credentials: true
-}));
-app.use(express.json());
+// ✅ CORS 正確設置（注意 credentials: true 一定要搭配 origin 明確設定）
+app.use(
+  cors({
+    origin: "https://actiwaki-frontend.onrender.com",
+    credentials: true,
+  })
+);
 
-// 保留原本的 /api/tasks 路徑
-app.use('/api', routes);
+// 基本中介層設定
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use("/api", routes);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`伺服器運行在 http://localhost:${PORT}`);
+// 預設首頁提示
+app.get("/", (req, res) => {
+  res.send("Backend API Server 正常運作");
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
