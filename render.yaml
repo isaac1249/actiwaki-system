@@ -1,8 +1,11 @@
 services:
-  - type: static_site
+  - type: web
     name: actiwaki-frontend
     repo: https://github.com/isaac1249/actiwaki-system
     branch: main
     rootDir: frontend
     buildCommand: npm run build
-    staticPublishPath: dist
+    startCommand: npx serve -s dist
+    envVars:
+      - key: NODE_VERSION
+        value: 18
