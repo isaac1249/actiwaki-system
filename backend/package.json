@@ -1,4 +1,12 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Actiwaki backend server",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
