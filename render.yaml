@@ -6,6 +6,7 @@ services:
     rootDir: frontend
     buildCommand: npm run build
     startCommand: npx serve -s dist
+    runtime: node
     envVars:
       - key: NODE_VERSION
         value: 18
