@@ -29,7 +29,7 @@ const TreePage = () => {
   const [originalData, setOriginalData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/tasks")
+    fetch("https://actiwaki-system.onrender.com/api/tasks")
       .then((res) => res.json())
       .then((data) => {
         setOriginalData(data);

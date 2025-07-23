@@ -8,7 +8,7 @@ export default function LoginPage({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/login", { username, password }, { withCredentials: true });
+      await axios.post("https://actiwaki-system.onrender.com/api/login", { username, password }, { withCredentials: true });
       onLogin();  // 登入成功後回首頁或轉跳
     } catch (err) {
       alert("登入失敗");

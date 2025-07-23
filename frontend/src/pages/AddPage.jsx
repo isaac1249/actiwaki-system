@@ -22,7 +22,9 @@ function AddPage() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/tasks");
+     const response = await axios.get("https://actiwaki-system.onrender.com/api/tasks", {
+      withCredentials: true
+    });
       setTasks(response.data);
     } catch (error) {
       console.error("無法取得任務資料", error);
@@ -40,7 +42,7 @@ function AddPage() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("http://localhost:3001/api/tasks", newTask);
+      await axios.post("https://actiwaki-system.onrender.com/api/tasks", newTask);
       setNewTask({
         name: "",
         priority: "",
@@ -57,7 +59,7 @@ function AddPage() {
 
   const handleUpdate = async (id) => {
     try {
-      await axios.put(`http://localhost:3001/api/tasks/${id}`, editTask);
+      await axios.put(`https://actiwaki-system.onrender.com/api/tasks/${id}`, editTask);
       setEditIndex(null);
       fetchTasks();
     } catch (error) {
