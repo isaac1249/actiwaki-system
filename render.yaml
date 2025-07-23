@@ -1,12 +1,9 @@
 services:
   - type: web
     name: actiwaki-frontend
-    repo: https://github.com/isaac1249/actiwaki-system
-    branch: main
-    rootDir: frontend
-    buildCommand: npx vite build
-    startCommand: npx vite preview --port 10000
-    runtime: node
-    envVars:
-      - key: NODE_VERSION
-        value: 18
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    buildFilter:
+      paths:
+        - frontend/**
