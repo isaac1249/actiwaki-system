@@ -13,7 +13,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/protected", { withCredentials: true })
+    axios.get("/api/protected", { withCredentials: true })
       .then(() => setAuthenticated(true))
       .catch(() => setAuthenticated(false));
   }, []);
