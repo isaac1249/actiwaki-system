@@ -11,7 +11,7 @@ const SECRET_KEY = 'your_secret_key';
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  console.log('收到登入請求', username, password); // DEBUG
+  //console.log('收到登入請求', username, password); // DEBUG
 
   db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
     if (err) {
