@@ -40,7 +40,9 @@ router.post('/login', (req, res) => {
       const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
       res.json({ token });
     });
+
   });
+  console.log('Login attempt:', { username, password, user });
 });
 
 module.exports = router;
