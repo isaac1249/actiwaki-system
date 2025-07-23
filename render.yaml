@@ -1,9 +1,11 @@
 services:
   - type: web
     name: actiwaki-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
+    env: node
+    buildCommand: npm run build
+    startCommand: serve -s dist
     staticPublishPath: frontend/dist
+    rootDir: frontend
     buildFilter:
       paths:
         - frontend/**
