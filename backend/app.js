@@ -6,8 +6,8 @@ const routes = require('./routes');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', // ❗請寫死前端位址
-  credentials: true               // ❗允許攜帶 cookie / token
+  origin: ['http://localhost:5173', 'https://actiwaki-system.onrender.com'],
+  credentials: true
 }));
 app.use(express.json());
 
