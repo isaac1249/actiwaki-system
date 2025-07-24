@@ -33,82 +33,41 @@ const TreePage = () => {
       .then((res) => res.json())
       .then((data) => {
         setOriginalData(data);
+        const idToTask = Object.fromEntries(data.map((task) => [task.id, task]));
 
-        const sortedData = [...data].sort((a, b) => a.id - b.id);
+        const nodes = data.map((task) => ({
+          id: task.id.toString(),
+          position: {
+            x: task.x ?? Math.random() * 500,
+            y: task.y ?? Math.random() * 500,
+          },
+          data: {
+            label: (
+              <div
+                style={{
+                  padding: 10,
+                  borderRadius: 12,
+                  backgroundColor: getStatusColor(task.status),
+                  color: "black",
+                  fontWeight: 500,
+                  minWidth: 160,
+                  textAlign: "center",
+                }}
+              >
+                <div><strong>ID: {task.id}</strong></div>
+                <div>{task.name || "無名"}</div>
+                <div>重要度: {task.priority || "無"}</div>
+                <div>完成度: {task.completion ?? 0}%</div>
+              </div>
+            ),
+          },
+          style: {
+            border: "none",
+            backgroundColor: "transparent",
+          },
+        }));
 
-        const parents = sortedData.filter(t => !t.parent);
-        const children = sortedData.filter(t => !!t.parent);
-        const childIds = new Set(children.map(c => c.parent));
-        const parentWithNoChildren = parents.filter(p => !childIds.has(p.id));
-        const parentWithChildren = parents.filter(p => childIds.has(p.id));
-        const newSortedData = [...parentWithNoChildren, ...parentWithChildren, ...children];
-
-        const idToTask = Object.fromEntries(newSortedData.map((task) => [task.id, task]));
-        const idToChildren = {};
-        newSortedData.forEach((task) => {
-          if (task.parent) {
-            if (!idToChildren[task.parent]) idToChildren[task.parent] = [];
-            idToChildren[task.parent].push(task);
-          }
-        });
-
-        const levelMap = {};
-        const visited = new Set();
-
-        const assignLevels = (task, level = 0) => {
-          if (visited.has(task.id)) return;
-          visited.add(task.id);
-          levelMap[task.id] = level;
-          const children = idToChildren[task.id] || [];
-          children.forEach((child) => assignLevels(child, level + 1));
-        };
-
-        newSortedData.forEach((task) => {
-          if (!task.parent) assignLevels(task);
-        });
-
-        const levelCounts = {};
-        const nodes = newSortedData.map((task) => {
-          const level = levelMap[task.id] || 0;
-          levelCounts[level] = (levelCounts[level] || 0) + 1;
-
-          return {
-            id: task.id.toString(),
-            position: task.x != null && task.y != null ? {
-              x: task.x,
-              y: task.y,
-            } : {
-              x: levelCounts[level] * 300,
-              y: level * 250,
-            },
-            data: {
-              label: (
-                <div
-                  style={{
-                    padding: 10,
-                    borderRadius: 12,
-                    backgroundColor: getStatusColor(task.status),
-                    color: "black",
-                    fontWeight: 500,
-                    minWidth: 160,
-                    textAlign: "center",
-                  }}
-                >
-                  <div><strong>ID: {task.id}</strong></div>
-                  <div>{task.name || "無名"}</div>
-                  <div>重要度: {task.priority || "無"}</div>
-                  <div>完成度: {task.completion ?? 0}%</div>
-                </div>
-              ),
-            },
-            style: {
-              border: "none",
-              backgroundColor: "transparent",
-            },
-          };
-        });
-
-        const edges = newSortedData
+        const edges = data
           .filter((task) => task.parent)
           .map((task) => ({
             id: `e${task.parent}-${task.id}`,
@@ -134,20 +93,22 @@ const TreePage = () => {
     setSelectedTask(task);
   }, [originalData]);
 
-  const onNodeDragStop = useCallback((event, node) => {
-    setNodes((nds) =>
-      nds.map((n) => (n.id === node.id ? { ...n, position: node.position } : n))
-    );
-    fetch(`https://actiwaki-system.onrender.com/api/tasks/${node.id}/position`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(node.position),
-    });
-  }, []);
-
   const handleCloseModal = () => {
     setSelectedTask(null);
   };
+
+  const handleNodeDragStop = useCallback((event, node) => {
+    const taskId = parseInt(node.id, 10);
+    const { x, y } = node.position;
+
+    fetch(`https://actiwaki-system.onrender.com/api/tasks/${taskId}/position`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ x, y }),
+    }).catch((err) => {
+      console.error("儲存節點位置失敗", err);
+    });
+  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }}>
@@ -158,7 +119,7 @@ const TreePage = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
-        onNodeDragStop={onNodeDragStop}
+        onNodeDragStop={handleNodeDragStop}
         fitView
         fitViewOptions={{ padding: 0.4 }}
       >
@@ -166,7 +127,7 @@ const TreePage = () => {
         <Controls />
         <MiniMap
           nodeColor={(n) => {
-            const task = originalData.find((t) => t.id.toString() === n.id);
+            const task = originalData.find((t) => t.id === parseInt(n.id));
             return getStatusColor(task?.status);
           }}
           style={{ bottom: 100, right: 350 }}
