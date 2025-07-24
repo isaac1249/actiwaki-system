@@ -1,40 +1,52 @@
+// frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 
 import AddPage from './pages/AddPage';
 import TreePage from './pages/TreePage';
-import Navbar from './pages/Navbar';
-import Layout from './pages/Layout';
+import QuotePage from './pages/QuotePage';
 import LoginPage from './pages/LoginPage';
-import QuotePage from './pages/QuotePage'; // 👈 報價頁面
+import Layout from './pages/Layout';
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // 防止閃爍
 
   useEffect(() => {
-    axios.get("/api/protected", { withCredentials: true })
-      .then(() => setAuthenticated(true))
-      .catch(() => setAuthenticated(false));
+    const checkAuth = async () => {
+      try {
+        await axios.get("/api/protected", { withCredentials: true });
+        setAuthenticated(true);
+      } catch {
+        setAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
   }, []);
 
-  if (!authenticated) {
-    return (
-      <Routes>
-        <Route path="/" element={<LoginPage onLogin={() => setAuthenticated(true)} />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    );
-  }
+  if (loading) return null; // 避免驗證未完成時渲染畫面
 
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route path="/add" element={<AddPage />} />
-        <Route path="/tree" element={<TreePage />} />
-        <Route path="/quote" element={<QuotePage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/add" />} />
+      {/* 未登入只能進入登入頁 */}
+      {!authenticated ? (
+        <>
+          <Route path="/" element={<LoginPage onLogin={() => setAuthenticated(true)} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      ) : (
+        <>
+          <Route element={<Layout onLogout={() => setAuthenticated(false)} />}>
+            <Route path="/add" element={<AddPage />} />
+            <Route path="/tree" element={<TreePage />} />
+            <Route path="/quote" element={<QuotePage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/add" replace />} />
+        </>
+      )}
     </Routes>
   );
 }

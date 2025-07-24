@@ -1,13 +1,21 @@
+// frontend/src/pages/Navbar.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
+import axios from "axios";
 
-const Navbar = () => {
+const Navbar = ({ onLogout }) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/logout", {}, { withCredentials: true });
+      localStorage.removeItem("token");
+      onLogout(); // 更新 App 狀態
+      navigate("/"); // 導回登入頁
+    } catch (error) {
+      console.error("登出失敗", error);
+    }
   };
 
   return (
@@ -24,9 +32,7 @@ const Navbar = () => {
           <Link to="/quote" className={styles.link}>報價系統</Link>
         </li>
         <li className={styles.item}>
-          <button onClick={handleLogout} className={styles.link} style={{ background: "none", border: "none", cursor: "pointer" }}>
-            登出
-          </button>
+          <button onClick={handleLogout} className={styles.logoutBtn}>登出</button>
         </li>
       </ul>
     </nav>
