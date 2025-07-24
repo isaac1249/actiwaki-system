@@ -44,4 +44,19 @@ router.put("/:id", (req, res) => {
   );
 });
 
+// 儲存節點位置
+router.put('/tasks/:id/position', (req, res) => {
+  const { id } = req.params;
+  const { x, y } = req.body;
+
+  const sql = 'UPDATE tasks SET x = ?, y = ? WHERE id = ?';
+  db.run(sql, [x, y, id], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: '更新位置失敗' });
+    }
+    res.json({ success: true });
+  });
+});
+
 module.exports = router;
