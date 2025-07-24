@@ -33,11 +33,19 @@ const TreePage = () => {
       .then((res) => res.json())
       .then((data) => {
         setOriginalData(data);
+
         const sortedData = [...data].sort((a, b) => a.id - b.id);
 
-        const idToTask = Object.fromEntries(sortedData.map((task) => [task.id, task]));
+        const parents = sortedData.filter(t => !t.parent);
+        const children = sortedData.filter(t => !!t.parent);
+        const childIds = new Set(children.map(c => c.parent));
+        const parentWithNoChildren = parents.filter(p => !childIds.has(p.id));
+        const parentWithChildren = parents.filter(p => childIds.has(p.id));
+        const newSortedData = [...parentWithNoChildren, ...parentWithChildren, ...children];
+
+        const idToTask = Object.fromEntries(newSortedData.map((task) => [task.id, task]));
         const idToChildren = {};
-        sortedData.forEach((task) => {
+        newSortedData.forEach((task) => {
           if (task.parent) {
             if (!idToChildren[task.parent]) idToChildren[task.parent] = [];
             idToChildren[task.parent].push(task);
@@ -55,18 +63,21 @@ const TreePage = () => {
           children.forEach((child) => assignLevels(child, level + 1));
         };
 
-        sortedData.forEach((task) => {
+        newSortedData.forEach((task) => {
           if (!task.parent) assignLevels(task);
         });
 
         const levelCounts = {};
-        const nodes = sortedData.map((task) => {
+        const nodes = newSortedData.map((task) => {
           const level = levelMap[task.id] || 0;
           levelCounts[level] = (levelCounts[level] || 0) + 1;
 
           return {
             id: task.id.toString(),
-            position: {
+            position: task.x != null && task.y != null ? {
+              x: task.x,
+              y: task.y,
+            } : {
               x: levelCounts[level] * 300,
               y: level * 250,
             },
@@ -97,7 +108,7 @@ const TreePage = () => {
           };
         });
 
-        const edges = sortedData
+        const edges = newSortedData
           .filter((task) => task.parent)
           .map((task) => ({
             id: `e${task.parent}-${task.id}`,
@@ -123,6 +134,17 @@ const TreePage = () => {
     setSelectedTask(task);
   }, [originalData]);
 
+  const onNodeDragStop = useCallback((event, node) => {
+    setNodes((nds) =>
+      nds.map((n) => (n.id === node.id ? { ...n, position: node.position } : n))
+    );
+    fetch(`https://actiwaki-system.onrender.com/api/tasks/${node.id}/position`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(node.position),
+    });
+  }, []);
+
   const handleCloseModal = () => {
     setSelectedTask(null);
   };
@@ -136,6 +158,7 @@ const TreePage = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
+        onNodeDragStop={onNodeDragStop}
         fitView
         fitViewOptions={{ padding: 0.4 }}
       >
@@ -143,10 +166,10 @@ const TreePage = () => {
         <Controls />
         <MiniMap
           nodeColor={(n) => {
-            if (n.type === "input") return "blue";
-            return "#00ff00";
+            const task = originalData.find((t) => t.id.toString() === n.id);
+            return getStatusColor(task?.status);
           }}
-          style={{ bottom: 100, right: 350}} // ⬅️ 就是這行調整 MiniMap 位置
+          style={{ bottom: 100, right: 350 }}
         />
       </ReactFlow>
 
