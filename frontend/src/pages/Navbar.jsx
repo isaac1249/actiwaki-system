@@ -1,9 +1,15 @@
-// frontend/src/pages/Navbar.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <nav className={styles.nav}>
       <div className={styles.title}>業務系統</div>
@@ -15,7 +21,12 @@ const Navbar = () => {
           <Link to="/tree" className={styles.link}>任務樹狀圖</Link>
         </li>
         <li className={styles.item}>
-         <Link to="/quote" className={styles.link}>報價系統</Link>
+          <Link to="/quote" className={styles.link}>報價系統</Link>
+        </li>
+        <li className={styles.item}>
+          <button onClick={handleLogout} className={styles.link} style={{ background: "none", border: "none", cursor: "pointer" }}>
+            登出
+          </button>
         </li>
       </ul>
     </nav>
