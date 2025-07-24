@@ -28,27 +28,26 @@ function App() {
   }, []);
 
   if (loading) return null; // 避免驗證未完成時渲染畫面
+  if (!authenticated) {
+    return (
+      <Routes>
+        <Route path="/" element={<LoginPage onLogin={() => setAuthenticated(true)} />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    );
+  }
 
   return (
     <Routes>
-      {/* 未登入只能進入登入頁 */}
-      {!authenticated ? (
-        <>
-          <Route path="/" element={<LoginPage onLogin={() => setAuthenticated(true)} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </>
-      ) : (
-        <>
-          <Route element={<Layout onLogout={() => setAuthenticated(false)} />}>
-            <Route path="/add" element={<AddPage />} />
-            <Route path="/tree" element={<TreePage />} />
-            <Route path="/quote" element={<QuotePage />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/add" replace />} />
-        </>
-      )}
+      <Route element={<Layout onLogout={() => setAuthenticated(false)} />}>
+        <Route path="/add" element={<AddPage />} />
+        <Route path="/tree" element={<TreePage />} />
+        <Route path="/quote" element={<QuotePage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/add" />} />
     </Routes>
   );
+
 }
 
 export default App;
