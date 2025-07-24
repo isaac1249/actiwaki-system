@@ -1,3 +1,4 @@
+// frontend/src/pages/TreePage.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import ReactFlow, {
   MiniMap,
@@ -11,14 +12,10 @@ import "reactflow/dist/style.css";
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "規劃中":
-      return "#34a853"; // 綠
-    case "進行中":
-      return "#fbbc04"; // 黃
-    case "已完成":
-      return "#ea4335"; // 紅
-    default:
-      return "#9e9e9e"; // 灰
+    case "規劃中": return "#34a853";
+    case "進行中": return "#fbbc04";
+    case "已完成": return "#ea4335";
+    default: return "#9e9e9e";
   }
 };
 
@@ -33,27 +30,24 @@ const TreePage = () => {
       .then((res) => res.json())
       .then((data) => {
         setOriginalData(data);
-        const idToTask = Object.fromEntries(data.map((task) => [task.id, task]));
 
         const nodes = data.map((task) => ({
           id: task.id.toString(),
           position: {
-            x: task.x ?? Math.random() * 500,
-            y: task.y ?? Math.random() * 500,
+            x: task.x ?? Math.random() * 400,
+            y: task.y ?? Math.random() * 400,
           },
           data: {
             label: (
-              <div
-                style={{
-                  padding: 10,
-                  borderRadius: 12,
-                  backgroundColor: getStatusColor(task.status),
-                  color: "black",
-                  fontWeight: 500,
-                  minWidth: 160,
-                  textAlign: "center",
-                }}
-              >
+              <div style={{
+                padding: 10,
+                borderRadius: 12,
+                backgroundColor: getStatusColor(task.status),
+                color: "black",
+                fontWeight: 500,
+                minWidth: 160,
+                textAlign: "center",
+              }}>
                 <div><strong>ID: {task.id}</strong></div>
                 <div>{task.name || "無名"}</div>
                 <div>重要度: {task.priority || "無"}</div>
