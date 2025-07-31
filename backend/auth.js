@@ -1,43 +1,35 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const sqlite3 = require('sqlite3').verbose();
 const router = express.Router();
 
-const db = new sqlite3.Database('./database.db');
-const SECRET_KEY = 'your_secret_key';
+const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
-// 登入 API
-router.post('/login', (req, res) => {
+// 登入
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-    if (err) {
-      console.error('資料庫錯誤:', err);
-      return res.status(500).json({ error: '內部伺服器錯誤' });
-    }
+  try {
+    const result = await req.db.query('SELECT * FROM users WHERE username=$1', [username]);
+    const user = result.rows[0];
 
-    if (!user) {
-      console.warn('找不到使用者:', username);
-      return res.status(401).json({ error: '帳號或密碼錯誤' });
-    }
+    if (!user) return res.status(401).json({ error: '帳號或密碼錯誤' });
 
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err) {
-        console.error('密碼比對錯誤:', err);
-        return res.status(500).json({ error: '密碼驗證錯誤' });
-      }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: '帳號或密碼錯誤' });
 
-      if (!isMatch) {
-        console.warn('密碼錯誤:', username);
-        return res.status(401).json({ error: '帳號或密碼錯誤' });
-      }
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
 
-      const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-      console.log('登入成功:', username);
-      res.json({ token });
-    });
-  });
+  } catch (err) {
+    console.error('登入失敗:', err);
+    res.status(500).json({ error: '登入失敗' });
+  }
+});
+
+// 測試保護路由
+router.get('/protected', (req, res) => {
+  res.json({ message: '已登入，可以訪問保護資料' });
 });
 
 module.exports = router;

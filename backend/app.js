@@ -1,30 +1,45 @@
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
-const routes = require("./routes");
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const { Pool } = require('pg');
+const routes = require('./routes');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-// ✅ CORS 正確設置（注意 credentials: true 一定要搭配 origin 明確設定）
-app.use(
-  cors({
-    origin: "https://actiwaki-frontend.onrender.com",
-    credentials: true,
-  })
-);
-
-// 基本中介層設定
-app.use(cookieParser());
-app.use(bodyParser.json());
-app.use("/api", routes);
-
-// 預設首頁提示
-app.get("/", (req, res) => {
-  res.send("Backend API Server 正常運作");
+// PostgreSQL Pool 設定
+const pool = new Pool({
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  port: process.env.PGPORT,
+  ssl: { rejectUnauthorized: false } // Render 必須加上 SSL
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// 確保連線正常
+pool.connect()
+  .then(() => console.log('✅ 已成功連接到 PostgreSQL'))
+  .catch(err => console.error('❌ PostgreSQL 連接失敗:', err));
+
+// 中介層
+app.use(cors({
+  origin: 'https://actiwaki-frontend.onrender.com',
+  credentials: true
+}));
+app.use(bodyParser.json());
+
+// 將 PostgreSQL pool 傳到 routes
+app.use((req, res, next) => {
+  req.db = pool;
+  next();
+});
+
+// 路由
+app.use('/api', routes);
+
+// 啟動伺服器
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

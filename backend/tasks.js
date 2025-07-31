@@ -1,62 +1,46 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./todo.db');
 
 // 取得所有任務
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM tasks", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const result = await req.db.query('SELECT * FROM tasks ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('取得任務失敗:', err);
+    res.status(500).json({ error: '取得任務失敗' });
+  }
 });
 
 // 新增任務
-router.post("/", (req, res) => {
-  const { name, parent, status, completion, description, priority } = req.body;
-  db.run(
-    "INSERT INTO tasks (name, parent, status, completion, description, priority) VALUES (?, ?, ?, ?, ?, ?)",
-    [name, parent, status, completion, description, priority],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID });
-    }
-  );
+router.post('/', async (req, res) => {
+  const { name, parent, status, completion, description, priority, x, y } = req.body;
+  try {
+    const result = await req.db.query(
+      'INSERT INTO tasks (name, parent, status, completion, description, priority, x, y) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
+      [name, parent, status, completion, description, priority, x, y]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('新增任務失敗:', err);
+    res.status(500).json({ error: '新增任務失敗' });
+  }
 });
 
-// 更新任務
-router.put("/:id", (req, res) => {
-  const { name, parent, status, completion, description, priority } = req.body;
-  db.run(
-    `UPDATE tasks SET 
-      name = ?, 
-      parent = ?, 
-      status = ?, 
-      completion = ?, 
-      description = ?,
-      priority = ?
-     WHERE id = ?`,
-    [name, parent, status, completion, description, priority, req.params.id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ changes: this.changes });
-    }
-  );
-});
-
-// 儲存節點位置
-router.put('/tasks/:id/position', (req, res) => {
+// 更新任務（包括位置）
+router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { x, y } = req.body;
-
-  const sql = 'UPDATE tasks SET x = ?, y = ? WHERE id = ?';
-  db.run(sql, [x, y, id], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: '更新位置失敗' });
-    }
-    res.json({ success: true });
-  });
+  const { name, parent, status, completion, description, priority, x, y } = req.body;
+  try {
+    const result = await req.db.query(
+      'UPDATE tasks SET name=$1, parent=$2, status=$3, completion=$4, description=$5, priority=$6, x=$7, y=$8 WHERE id=$9 RETURNING *',
+      [name, parent, status, completion, description, priority, x, y, id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('更新任務失敗:', err);
+    res.status(500).json({ error: '更新任務失敗' });
+  }
 });
 
 module.exports = router;
