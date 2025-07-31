@@ -1,28 +1,23 @@
-// frontend/src/App.jsx
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import axios from 'axios';
-
-import AddPage from './pages/AddPage';
-import TreePage from './pages/TreePage';
-import QuotePage from './pages/QuotePage';
-import LoginPage from './pages/LoginPage';
-import Layout from './pages/Layout';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import AddPage from "./pages/AddPage";
+import TreePage from "./pages/TreePage";
+import QuotePage from "./pages/QuotePage";
+import Layout from "./pages/Layout";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // 防止閃爍
+  const [authenticated, setAuthenticated] = useState(null); // null 表示還沒檢查完成
 
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    setAuthenticated(true);
-  } else {
-    setAuthenticated(false);
-  }
-}, []);
+    const token = localStorage.getItem("token");
+    setAuthenticated(!!token); // 有 token → true，否則 false
+  }, []);
 
-  if (loading) return null; // 避免驗證未完成時渲染畫面
+  if (authenticated === null) {
+    return <div style={{ color: "white" }}>載入中...</div>; // 避免閃爍白頁
+  }
+
   if (!authenticated) {
     return (
       <Routes>
@@ -34,7 +29,7 @@ function App() {
 
   return (
     <Routes>
-      <Route element={<Layout onLogout={() => setAuthenticated(false)} />}>
+      <Route element={<Layout />}>
         <Route path="/add" element={<AddPage />} />
         <Route path="/tree" element={<TreePage />} />
         <Route path="/quote" element={<QuotePage />} />
@@ -42,7 +37,6 @@ function App() {
       <Route path="*" element={<Navigate to="/add" />} />
     </Routes>
   );
-
 }
 
 export default App;
