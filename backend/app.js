@@ -4,27 +4,32 @@ require("dotenv").config();
 
 const app = express();
 
+// 中介層
 app.use(express.json());
 
-// ✅ 正確設定 cors
+// ✅ 正確 CORS 設定
 app.use(cors({
-  origin: "https://actiwaki-frontend.onrender.com", // 允許前端網址
-  credentials: true, // 允許帶 cookie / token
+  origin: "https://actiwaki-frontend.onrender.com", // 前端 render 網址
+  credentials: true
 }));
 
-app.options("*", cors()); // 處理預檢請求
+// Debug log
+console.log("CORS 設定完成，允許來源: https://actiwaki-frontend.onrender.com");
 
-// 測試路由
-app.get("/", (req, res) => {
-  res.json({ message: "後端啟動成功！" });
-});
-
-// 引入其他 API
+// Routes
 const authRoutes = require("./auth");
 const tasksRoutes = require("./tasks");
+
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", tasksRoutes);
 
+// 健康檢查
+app.get("/", (req, res) => {
+  res.send("Backend running 🚀");
+});
+
 // 啟動伺服器
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`後端已啟動在 Port ${PORT}`);
+});
