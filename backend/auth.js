@@ -26,14 +26,14 @@ module.exports = (pool) => {
       }
 
       const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-      res.json({ token });
+      return res.json({ token });
     } catch (err) {
       console.error('登入失敗:', err);
-      res.status(500).json({ error: '伺服器錯誤' });
+      return res.status(500).json({ error: '伺服器錯誤' });
     }
   });
 
-  // 註冊（可選）
+  // 註冊
   router.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
@@ -43,10 +43,10 @@ module.exports = (pool) => {
         'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
         [username, hashedPassword]
       );
-      res.json({ id: result.rows[0].id, username: result.rows[0].username });
+      return res.json({ id: result.rows[0].id, username: result.rows[0].username });
     } catch (err) {
       console.error('註冊失敗:', err);
-      res.status(500).json({ error: '伺服器錯誤' });
+      return res.status(500).json({ error: '伺服器錯誤' });
     }
   });
 
