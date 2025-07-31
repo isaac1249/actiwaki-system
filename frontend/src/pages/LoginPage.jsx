@@ -11,27 +11,18 @@ export default function LoginPage({ onLogin }) {
       const res = await axios.post(
         "https://actiwaki-system.onrender.com/api/auth/login",
         { username, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true, // 🔑 確保 cookie/token 傳遞
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        alert("登入成功！");
-        onLogin();
-      } else {
-        alert("登入失敗，沒有收到 token");
-      }
+      localStorage.setItem("token", res.data.token);
+      onLogin(); // 通知 App.jsx 使用者已登入
     } catch (err) {
-      console.error("登入錯誤:", err);
-      alert("登入失敗，請檢查帳號密碼或伺服器");
+      alert("登入失敗");
+      console.error(err);
     }
   };
 
   return (
-    <div className="login-container" style={{ textAlign: "center", marginTop: "50px" }}>
+    <div className="login-container">
       <h2>登入</h2>
       <form onSubmit={handleSubmit}>
         <input
