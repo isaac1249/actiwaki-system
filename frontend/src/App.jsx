@@ -14,18 +14,13 @@ function App() {
   const [loading, setLoading] = useState(true); // 防止閃爍
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await axios.get("/api/protected", { withCredentials: true });
-        setAuthenticated(true);
-      } catch {
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, []);
+  const token = localStorage.getItem("token");
+  if (token) {
+    setAuthenticated(true);
+  } else {
+    setAuthenticated(false);
+  }
+}, []);
 
   if (loading) return null; // 避免驗證未完成時渲染畫面
   if (!authenticated) {
