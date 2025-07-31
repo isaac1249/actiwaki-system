@@ -1,39 +1,30 @@
-// backend/app.js
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const bodyParser = require('body-parser');
-
-dotenv.config();
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
-// ✅ 設定 CORS，只允許前端的 Render 網址
-app.use(cors({
-  origin: "https://actiwaki-frontend.onrender.com", // 改成你的前端網址
-  credentials: true
-}));
-
-app.options("*", cors()); // 🔑 處理 Preflight 請求
-
-app.use(bodyParser.json());
 app.use(express.json());
 
-// 引入路由
-const authRoutes = require('./auth');
-const taskRoutes = require('./tasks');
+// ✅ 正確設定 cors
+app.use(cors({
+  origin: "https://actiwaki-frontend.onrender.com", // 允許前端網址
+  credentials: true, // 允許帶 cookie / token
+}));
 
-// 路由設定
-app.use('/api/auth', authRoutes);
-app.use('/api/tasks', taskRoutes);
+app.options("*", cors()); // 處理預檢請求
 
-// 測試 API
-app.get('/api/protected', (req, res) => {
-  res.json({ message: "成功存取受保護的 API" });
+// 測試路由
+app.get("/", (req, res) => {
+  res.json({ message: "後端啟動成功！" });
 });
+
+// 引入其他 API
+const authRoutes = require("./auth");
+const tasksRoutes = require("./tasks");
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", tasksRoutes);
 
 // 啟動伺服器
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
