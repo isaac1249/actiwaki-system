@@ -1,35 +1,54 @@
+// auth.js
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const router = express.Router();
+const jwt = require('jsonwebtoken');
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
-// 登入
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+module.exports = (pool) => {
+  const router = express.Router();
 
-  try {
-    const result = await req.db.query('SELECT * FROM users WHERE username=$1', [username]);
-    const user = result.rows[0];
+  // 登入
+  router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
 
-    if (!user) return res.status(401).json({ error: '帳號或密碼錯誤' });
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+      const user = result.rows[0];
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: '帳號或密碼錯誤' });
+      if (!user) {
+        return res.status(401).json({ error: '帳號或密碼錯誤' });
+      }
 
-    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-    res.json({ token });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ error: '帳號或密碼錯誤' });
+      }
 
-  } catch (err) {
-    console.error('登入失敗:', err);
-    res.status(500).json({ error: '登入失敗' });
-  }
-});
+      const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+      res.json({ token });
+    } catch (err) {
+      console.error('登入失敗:', err);
+      res.status(500).json({ error: '伺服器錯誤' });
+    }
+  });
 
-// 測試保護路由
-router.get('/protected', (req, res) => {
-  res.json({ message: '已登入，可以訪問保護資料' });
-});
+  // 註冊（可選）
+  router.post('/register', async (req, res) => {
+    const { username, password } = req.body;
 
-module.exports = router;
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const result = await pool.query(
+        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
+        [username, hashedPassword]
+      );
+      res.json({ id: result.rows[0].id, username: result.rows[0].username });
+    } catch (err) {
+      console.error('註冊失敗:', err);
+      res.status(500).json({ error: '伺服器錯誤' });
+    }
+  });
+
+  return router;
+};
