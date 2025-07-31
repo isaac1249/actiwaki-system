@@ -14,6 +14,8 @@ app.use(cors({
   credentials: true
 }));
 
+app.options("*", cors()); // 🔑 處理 Preflight 請求
+
 app.use(bodyParser.json());
 app.use(express.json());
 

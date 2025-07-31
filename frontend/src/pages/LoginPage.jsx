@@ -11,7 +11,10 @@ export default function LoginPage({ onLogin }) {
       const res = await axios.post(
         "https://actiwaki-system.onrender.com/api/auth/login",
         { username, password },
-        { headers: { "Content-Type": "application/json" } }
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, // 🔑 確保 cookie/token 傳遞
+        }
       );
 
       if (res.data.token) {
